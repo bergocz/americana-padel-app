@@ -1,4 +1,12 @@
-import { AmericanaPlayer, ClubCourt, AmericanaMatch, AmericanaRound, AmericanaPair } from '../types/americana';
+import {
+  AmericanaPlayer,
+  ClubCourt,
+  AmericanaMatch,
+  AmericanaRound,
+  AmericanaPair,
+  ScoringCriteria,
+  PlayerLeaderboardEntry,
+} from '../types/americana';
 
 // Utility Fisher-Yates shuffle
 function shuffleArray<T>(array: T[]): T[] {
@@ -229,3 +237,120 @@ export const DEFAULT_PRESET_PLAYERS: AmericanaPlayer[] = [
   { id: 'p15', name: 'Álex Ruiz', position: 'derecha', pointsWon: 0, matchesPlayed: 0, active: true, restCount: 0 },
   { id: 'p16', name: 'Sanyo Gutiérrez', position: 'derecha', pointsWon: 0, matchesPlayed: 0, active: true, restCount: 0 },
 ];
+
+/**
+ * Calculates standings based on scoring criteria:
+ * - 'games': Ranked primarily by total games won, then game differential, then matches won.
+ * - 'matches': Ranked primarily by matches won. In case of a tie in matches, ranked by games won (User requirement), then game diff.
+ */
+export function calculateLeaderboard(
+  players: AmericanaPlayer[],
+  rounds: AmericanaRound[],
+  criteria: ScoringCriteria = 'matches'
+): PlayerLeaderboardEntry[] {
+  const statsMap = new Map<string, PlayerLeaderboardEntry>();
+
+  for (const player of players) {
+    statsMap.set(player.id, {
+      player,
+      matchesPlayed: 0,
+      matchesWon: 0,
+      matchesTied: 0,
+      matchesLost: 0,
+      gamesWon: 0,
+      gamesLost: 0,
+      gamesDiff: 0,
+    });
+  }
+
+  // Iterate all rounds and matches
+  for (const round of rounds) {
+    for (const match of round.matches) {
+      const scoreA = Number(match.scoreA) || 0;
+      const scoreB = Number(match.scoreB) || 0;
+
+      // Only count matches where scores were entered or round is marked completed
+      const hasScores = scoreA > 0 || scoreB > 0 || round.completed;
+      if (!hasScores) continue;
+
+      const teamAPlayerIds = [match.teamA.playerReves.id, match.teamA.playerDerecha.id];
+      const teamBPlayerIds = [match.teamB.playerReves.id, match.teamB.playerDerecha.id];
+
+      const teamAWon = scoreA > scoreB;
+      const teamBWon = scoreB > scoreA;
+      const isTie = scoreA === scoreB && (scoreA > 0 || scoreB > 0);
+
+      for (const id of teamAPlayerIds) {
+        const stats = statsMap.get(id);
+        if (stats) {
+          stats.matchesPlayed += 1;
+          stats.gamesWon += scoreA;
+          stats.gamesLost += scoreB;
+          stats.gamesDiff = stats.gamesWon - stats.gamesLost;
+          if (teamAWon) stats.matchesWon += 1;
+          else if (teamBWon) stats.matchesLost += 1;
+          else if (isTie) stats.matchesTied += 1;
+        }
+      }
+
+      for (const id of teamBPlayerIds) {
+        const stats = statsMap.get(id);
+        if (stats) {
+          stats.matchesPlayed += 1;
+          stats.gamesWon += scoreB;
+          stats.gamesLost += scoreA;
+          stats.gamesDiff = stats.gamesWon - stats.gamesLost;
+          if (teamBWon) stats.matchesWon += 1;
+          else if (teamAWon) stats.matchesLost += 1;
+          else if (isTie) stats.matchesTied += 1;
+        }
+      }
+    }
+  }
+
+  const entries = Array.from(statsMap.values());
+
+  // Sort based on criteria
+  entries.sort((a, b) => {
+    if (criteria === 'matches') {
+      // 1. Matches won
+      if (b.matchesWon !== a.matchesWon) {
+        return b.matchesWon - a.matchesWon;
+      }
+      // 2. Tiebreaker: Games won (User requirement: "Si hay un empate en partidos, pues que luego sean los juegos")
+      if (b.gamesWon !== a.gamesWon) {
+        return b.gamesWon - a.gamesWon;
+      }
+      // 3. Tiebreaker: Games differential
+      if (b.gamesDiff !== a.gamesDiff) {
+        return b.gamesDiff - a.gamesDiff;
+      }
+      // 4. Matches played
+      if (b.matchesPlayed !== a.matchesPlayed) {
+        return b.matchesPlayed - a.matchesPlayed;
+      }
+      return a.player.name.localeCompare(b.player.name);
+    } else {
+      // criteria === 'games'
+      // 1. Total games won
+      if (b.gamesWon !== a.gamesWon) {
+        return b.gamesWon - a.gamesWon;
+      }
+      // 2. Games differential
+      if (b.gamesDiff !== a.gamesDiff) {
+        return b.gamesDiff - a.gamesDiff;
+      }
+      // 3. Matches won
+      if (b.matchesWon !== a.matchesWon) {
+        return b.matchesWon - a.matchesWon;
+      }
+      // 4. Matches played
+      if (b.matchesPlayed !== a.matchesPlayed) {
+        return b.matchesPlayed - a.matchesPlayed;
+      }
+      return a.player.name.localeCompare(b.player.name);
+    }
+  });
+
+  return entries;
+}
