@@ -1,5 +1,5 @@
-// Americana de Pádel Service Worker
-const CACHE_NAME = 'americana-padel-v1';
+// Americana de Pádel Service Worker - Network-First Strategy
+const CACHE_NAME = 'americana-padel-v4';
 const ASSETS_TO_CACHE = [
   '/',
   '/manifest.json',
@@ -10,11 +10,7 @@ const ASSETS_TO_CACHE = [
 ];
 
 self.addEventListener('install', (event) => {
-  event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => {
-      return cache.addAll(ASSETS_TO_CACHE);
-    }).then(() => self.skipWaiting())
-  );
+  self.skipWaiting();
 });
 
 self.addEventListener('activate', (event) => {
@@ -32,25 +28,23 @@ self.addEventListener('activate', (event) => {
 });
 
 self.addEventListener('fetch', (event) => {
-  // Only handle GET requests
   if (event.request.method !== 'GET') return;
 
+  // Network first: always fetch fresh bundle, fallback to cache if offline
   event.respondWith(
-    caches.match(event.request).then((cachedResponse) => {
-      // Return cached version or fetch from network with fallback
-      return (
-        cachedResponse ||
-        fetch(event.request)
-          .then((networkResponse) => {
-            return networkResponse;
-          })
-          .catch(() => {
-            // Return cached root if navigating offline
-            if (event.request.mode === 'navigate') {
-              return caches.match('/');
-            }
-          })
-      );
-    })
+    fetch(event.request)
+      .then((networkResponse) => {
+        if (networkResponse && networkResponse.status === 200) {
+          const responseToCache = networkResponse.clone();
+          caches.open(CACHE_NAME).then((cache) => {
+            cache.put(event.request, responseToCache);
+          });
+        }
+        return networkResponse;
+      })
+      .catch(() => {
+        return caches.match(event.request);
+      })
   );
 });
+

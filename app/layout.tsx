@@ -39,6 +39,32 @@ export default function RootLayout({
   return (
     <html lang="es" className="h-full">
       <body className="min-h-full flex flex-col bg-[#cbd5e1] text-slate-900 selection:bg-blue-600 selection:text-white">
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.getRegistrations().then(function(regs) {
+                  for (var reg of regs) {
+                    reg.unregister();
+                  }
+                });
+              }
+              if ('caches' in window) {
+                caches.keys().then(function(names) {
+                  for (var name of names) {
+                    caches.delete(name);
+                  }
+                });
+              }
+              try {
+                var stored = localStorage.getItem('club_padel_americana_state_v1');
+                if (stored && (stored.indexOf('Gal\u00e1n') !== -1 || stored.indexOf('Lebr\u00f3n') !== -1 || stored.indexOf('Alcaraz') !== -1)) {
+                  localStorage.removeItem('club_padel_americana_state_v1');
+                }
+              } catch(e) {}
+            `,
+          }}
+        />
         {children}
       </body>
     </html>
