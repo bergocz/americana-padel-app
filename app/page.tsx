@@ -1,5 +1,6 @@
 import React from 'react';
 import { AmericanaManager } from '../components/AmericanaManager';
+import { PwaInstallBanner } from '../components/PwaInstallBanner';
 import { Trophy, Zap, ShieldCheck } from 'lucide-react';
 
 export default function AmericanaPage() {
@@ -38,6 +39,7 @@ export default function AmericanaPage() {
 
       {/* Main Content */}
       <main className="flex-1 max-w-7xl w-full mx-auto px-3 sm:px-6 lg:px-8 py-6">
+        <PwaInstallBanner />
         <AmericanaManager />
       </main>
 
