@@ -5,13 +5,15 @@
   --padel-primary-hover: #1d4ed8;
   --padel-secondary: #0284c7;
   --padel-accent: #facc15;
-  --padel-bg: #f8fafc;
+  --padel-bg: #e8edf5;
   --padel-surface: #ffffff;
   --padel-text: #0f172a;
 }
 
 body {
-  background-color: #f8fafc;
+  background-color: #e8edf5;
+  background-image: radial-gradient(at 50% 0%, #f1f5f9 0%, #e2e8f0 100%);
+  background-attachment: fixed;
   color: #0f172a;
   font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
   -webkit-font-smoothing: antialiased;

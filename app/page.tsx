@@ -4,9 +4,9 @@ import { Trophy, Zap, ShieldCheck } from 'lucide-react';
 
 export default function AmericanaPage() {
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900 flex flex-col selection:bg-blue-600 selection:text-white">
+    <div className="min-h-screen bg-transparent text-slate-900 flex flex-col selection:bg-blue-600 selection:text-white">
       {/* Top Banner / Navbar */}
-      <header className="sticky top-0 z-40 bg-white/90 backdrop-blur-md border-b border-slate-200/80 shadow-xs">
+      <header className="sticky top-0 z-40 bg-white/85 backdrop-blur-md border-b border-slate-300/80 shadow-xs">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-blue-600 to-sky-500 text-white flex items-center justify-center font-black shadow-md shadow-blue-500/20">
@@ -21,14 +21,14 @@ export default function AmericanaPage() {
                   2-6 PISTAS
                 </span>
               </div>
-              <p className="text-[11px] text-slate-500 font-medium hidden sm:block">
+              <p className="text-[11px] text-slate-600 font-medium hidden sm:block">
                 Sorteo aleatorio por posición (Revés & Derecha) • Temporizador y alarma sonora
               </p>
             </div>
           </div>
 
           <div className="flex items-center gap-3">
-            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-slate-100 border border-slate-200 text-xs text-slate-700 font-semibold shadow-xs">
+            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-slate-100/90 border border-slate-300/90 text-xs text-slate-700 font-semibold shadow-xs">
               <ShieldCheck className="w-3.5 h-3.5 text-blue-600" />
               <span>Rotación Justa</span>
             </div>
@@ -42,13 +42,13 @@ export default function AmericanaPage() {
       </main>
 
       {/* Footer */}
-      <footer className="border-t border-slate-200 bg-white py-6 mt-12 text-center text-xs text-slate-500 shadow-xs">
+      <footer className="border-t border-slate-300/80 bg-white/70 backdrop-blur-xs py-6 mt-12 text-center text-xs text-slate-500 shadow-xs">
         <div className="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-3">
           <p className="flex items-center justify-center gap-1.5 text-slate-600">
             <Trophy className="w-4 h-4 text-blue-600" />
             <span className="font-semibold">Gestor oficial e independiente de Americanas de Pádel</span>
           </p>
-          <p className="text-slate-400">
+          <p className="text-slate-500">
             Algoritmo inteligente de emparejamiento con control de descansos y aviso acústico de cambio
           </p>
         </div>
