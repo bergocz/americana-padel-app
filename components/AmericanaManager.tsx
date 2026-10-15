@@ -20,6 +20,7 @@ import { AlarmModal } from './AlarmModal';
 import { PlayerManagerModal } from './PlayerManagerModal';
 import { CourtSelectorModal } from './CourtSelectorModal';
 import { LeaderboardModal } from './LeaderboardModal';
+import { NewAmericanaWizard } from './NewAmericanaWizard';
 import {
   Shuffle,
   Users,
@@ -34,6 +35,7 @@ import {
   Coffee,
   AlertTriangle,
   Flame,
+  PlusCircle,
 } from 'lucide-react';
 
 const STORAGE_KEY = 'club_padel_americana_state_v1';
@@ -49,7 +51,8 @@ export const AmericanaManager: React.FC = () => {
   const [timeRemaining, setTimeRemaining] = useState(12 * 60);
   const [isTimerRunning, setIsTimerRunning] = useState(false);
 
-  // Modals
+  // Modals & Wizard
+  const [isWizardOpen, setIsWizardOpen] = useState(false);
   const [isPlayerModalOpen, setIsPlayerModalOpen] = useState(false);
   const [isCourtModalOpen, setIsCourtModalOpen] = useState(false);
   const [isLeaderboardOpen, setIsLeaderboardOpen] = useState(false);
@@ -247,6 +250,46 @@ export const AmericanaManager: React.FC = () => {
     }).catch(() => {});
   };
 
+  // Handler to start new tournament from guided wizard
+  const handleStartTournamentFromWizard = (config: {
+    courtsCount: number;
+    players: AmericanaPlayer[];
+    durationMinutes: number;
+    scoringCriteria: ScoringCriteria;
+  }) => {
+    // 1. Activate selected courts
+    const updatedCourts = DEFAULT_CLUB_COURTS.map((c, i) => ({
+      ...c,
+      active: i < config.courtsCount,
+    }));
+    setCourts(updatedCourts);
+
+    // 2. Set players
+    setPlayers(config.players);
+
+    // 3. Set match duration & scoring criteria
+    setDurationMinutes(config.durationMinutes);
+    setTimeRemaining(config.durationMinutes * 60);
+    setScoringCriteria(config.scoringCriteria);
+
+    // 4. Generate first round with proper pairings
+    const firstRound = generateAmericanaRound(
+      config.players,
+      updatedCourts,
+      [],
+      1
+    );
+
+    setRounds([firstRound]);
+    setCurrentRoundNumber(1);
+    setIsTimerRunning(false);
+    setIsWizardOpen(false);
+
+    // Audio cue
+    americanaAudio.unlockAudio();
+    americanaAudio.playWhistle();
+  };
+
   // Fullscreen helper
   const handleToggleFullscreen = () => {
     if (!document.fullscreenElement) {
@@ -289,6 +332,15 @@ export const AmericanaManager: React.FC = () => {
 
         {/* Right: Quick Settings Buttons */}
         <div className="flex items-center gap-2 flex-wrap">
+          <button
+            type="button"
+            onClick={() => setIsWizardOpen(true)}
+            className="px-4 py-2 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-black text-xs transition flex items-center gap-1.5 shadow-md shadow-blue-500/20 active:scale-95 cursor-pointer"
+          >
+            <Sparkles className="w-3.5 h-3.5 fill-current" />
+            <span>Nueva Americana</span>
+          </button>
+
           <button
             type="button"
             onClick={() => setIsCourtModalOpen(true)}
@@ -526,40 +578,48 @@ export const AmericanaManager: React.FC = () => {
           </div>
         </div>
       ) : (
-        /* Empty State / Initial Setup Screen */
-        <div className="text-center py-16 px-4 bg-white border border-slate-200 rounded-3xl p-8 space-y-4 shadow-sm">
-          <div className="w-16 h-16 rounded-3xl bg-blue-50 border border-blue-200 flex items-center justify-center text-blue-600 mx-auto shadow-xs">
-            <Shuffle className="w-8 h-8" />
+        /* Welcome Hero Screen: "Empezar nueva americana" */
+        <div className="max-w-2xl mx-auto my-6 sm:my-10 p-6 sm:p-10 rounded-3xl bg-white border border-slate-300 shadow-xl text-center space-y-6">
+          <div className="w-20 h-20 rounded-3xl bg-gradient-to-br from-blue-600 via-indigo-600 to-sky-500 text-white flex items-center justify-center mx-auto text-4xl shadow-lg shadow-blue-500/25">
+            🎾
           </div>
 
-          <div className="max-w-md mx-auto">
-            <h3 className="text-lg font-black text-slate-900 mb-1">
-              ¡Configura tu Americana de Pádel!
+          <div className="space-y-2">
+            <div className="inline-block px-3 py-1 rounded-full bg-blue-100 border border-blue-200 text-blue-800 font-mono text-xs font-bold uppercase tracking-wider">
+              Torneo Oficial de Pádel
+            </div>
+            <h3 className="text-xl sm:text-3xl font-black text-slate-900 tracking-tight uppercase">
+              Americana <span className="text-blue-600">Pádel</span> Pro
             </h3>
-            <p className="text-xs text-slate-500 leading-relaxed">
-              Tienes <strong>{activeCourts.length} pistas activas</strong> y{' '}
-              <strong>{activePlayers.length} jugadores registrados</strong>. El algoritmo
-              emparejará automáticamente a cada jugador de Revés con uno de Derecha, asignará pistas al azar y rotará compañeros.
+            <p className="text-xs sm:text-sm text-slate-600 max-w-md mx-auto leading-relaxed">
+              Configura cuántas pistas son, asigna los nombres y lados (Izquierda / Derecha) con recuento en vivo y comienza tu torneo con alarma acústica.
             </p>
           </div>
 
-          <div className="flex items-center justify-center gap-3 flex-wrap pt-2">
+          <div className="pt-2 flex flex-col sm:flex-row items-center justify-center gap-3">
             <button
               type="button"
-              onClick={handleGenerateRound}
-              className="px-6 py-3.5 rounded-2xl bg-blue-600 hover:bg-blue-700 text-white font-black text-sm shadow-xl shadow-blue-500/25 transition active:scale-95 flex items-center gap-2 cursor-pointer"
+              onClick={() => setIsWizardOpen(true)}
+              className="w-full sm:w-auto px-8 py-4 rounded-2xl bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-700 hover:from-blue-700 hover:to-indigo-700 text-white font-black text-base shadow-xl shadow-blue-600/30 transition active:scale-95 flex items-center justify-center gap-2.5 cursor-pointer"
             >
-              <Sparkles className="w-4 h-4 fill-current text-white" />
-              <span>Sortear Primera Ronda</span>
+              <Sparkles className="w-5 h-5 fill-current" />
+              <span>Empezar Nueva Americana</span>
             </button>
+          </div>
 
-            <button
-              type="button"
-              onClick={() => setIsPlayerModalOpen(true)}
-              className="px-5 py-3.5 rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs transition border border-slate-200 cursor-pointer shadow-xs"
-            >
-              Editar Jugadores y Lados
-            </button>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-4 border-t border-slate-100 text-left text-xs">
+            <div className="p-3 rounded-2xl bg-slate-50 border border-slate-200">
+              <span className="font-bold text-blue-700 block mb-0.5">1. Elige Pistas</span>
+              <p className="text-[11px] text-slate-500">De 2 a 6 pistas con cálculo automático de cupo.</p>
+            </div>
+            <div className="p-3 rounded-2xl bg-slate-50 border border-slate-200">
+              <span className="font-bold text-blue-700 block mb-0.5">2. Izquierda y Derecha</span>
+              <p className="text-[11px] text-slate-500">Recuento en vivo y opción de copiar/importar lista.</p>
+            </div>
+            <div className="p-3 rounded-2xl bg-slate-50 border border-slate-200">
+              <span className="font-bold text-blue-700 block mb-0.5">3. Tiempo y Criterio</span>
+              <p className="text-[11px] text-slate-500">Minutos por partido y alarma sonora en el móvil.</p>
+            </div>
           </div>
         </div>
       )}
@@ -595,6 +655,13 @@ export const AmericanaManager: React.FC = () => {
         roundNumber={currentRoundNumber}
         onStopAlarm={() => setIsAlarmModalOpen(false)}
         onNextRound={handleGenerateRound}
+      />
+
+      <NewAmericanaWizard
+        isOpen={isWizardOpen}
+        onClose={() => setIsWizardOpen(false)}
+        onStartTournament={handleStartTournamentFromWizard}
+        hasActiveTournament={rounds.length > 0}
       />
     </div>
   );
