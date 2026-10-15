@@ -52,13 +52,6 @@ export const NewAmericanaWizard: React.FC<NewAmericanaWizardProps> = ({
   const [durationMinutes, setDurationMinutes] = useState<number>(12);
   const [scoringCriteria, setScoringCriteria] = useState<ScoringCriteria>('matches');
 
-  // Pre-load default 16 players when wizard opens first time
-  React.useEffect(() => {
-    if (players.length === 0) {
-      loadPresetPlayers(selectedCourtsCount * 4);
-    }
-  }, []);
-
   // When court count changes, adjust recommended players
   const handleSelectCourts = (count: number) => {
     setSelectedCourtsCount(count);
@@ -589,73 +582,83 @@ export const NewAmericanaWizard: React.FC<NewAmericanaWizardProps> = ({
                   <span>Pulsa para cambiar de lado al instante:</span>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-80 overflow-y-auto p-1">
-                  {players.map((p, idx) => (
-                    <div
-                      key={p.id}
-                      className="flex items-center justify-between p-2.5 rounded-xl bg-white border border-slate-200 shadow-2xs hover:border-slate-300 transition"
-                    >
-                      <div className="flex items-center gap-2 min-w-0 pr-2">
-                        <span className="text-[11px] font-mono text-slate-400 w-5 shrink-0">
-                          #{idx + 1}
-                        </span>
-                        <span className="font-bold text-xs text-slate-900 truncate">
-                          {p.name}
-                        </span>
+                {players.length === 0 ? (
+                  <div className="py-10 text-center bg-slate-50 border-2 border-dashed border-slate-200 rounded-2xl p-6">
+                    <Users className="w-8 h-8 text-slate-300 mx-auto mb-2" />
+                    <div className="text-xs font-black text-slate-700">Pestaña de jugadores vacía</div>
+                    <p className="text-[11px] text-slate-400 mt-1 max-w-sm mx-auto">
+                      Añade los nombres de los jugadores en el formulario superior o usa <strong>«📋 Copiar e Importar Lista»</strong> para pegar los nombres directamente desde WhatsApp.
+                    </p>
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-80 overflow-y-auto p-1">
+                    {players.map((p, idx) => (
+                      <div
+                        key={p.id}
+                        className="flex items-center justify-between p-2.5 rounded-xl bg-white border border-slate-200 shadow-2xs hover:border-slate-300 transition"
+                      >
+                        <div className="flex items-center gap-2 min-w-0 pr-2">
+                          <span className="text-[11px] font-mono text-slate-400 w-5 shrink-0">
+                            #{idx + 1}
+                          </span>
+                          <span className="font-bold text-xs text-slate-900 truncate">
+                            {p.name}
+                          </span>
+                        </div>
+
+                        <div className="flex items-center gap-1 shrink-0">
+                          <button
+                            type="button"
+                            onClick={() => handleChangePosition(p.id, 'reves')}
+                            title="Juega en la Izquierda (Revés)"
+                            className={`px-2 py-1 rounded text-[10px] font-bold transition cursor-pointer ${
+                              p.position === 'reves'
+                                ? 'bg-blue-600 text-white font-black shadow-xs'
+                                : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                            }`}
+                          >
+                            Izq
+                          </button>
+
+                          <button
+                            type="button"
+                            onClick={() => handleChangePosition(p.id, 'derecha')}
+                            title="Juega en la Derecha"
+                            className={`px-2 py-1 rounded text-[10px] font-bold transition cursor-pointer ${
+                              p.position === 'derecha'
+                                ? 'bg-slate-800 text-white font-black shadow-xs'
+                                : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                            }`}
+                          >
+                            Der
+                          </button>
+
+                          <button
+                            type="button"
+                            onClick={() => handleChangePosition(p.id, 'indiferente')}
+                            title="Juega en Ambos Lados (Polivalente)"
+                            className={`px-2 py-1 rounded text-[10px] font-bold transition cursor-pointer ${
+                              p.position === 'indiferente'
+                                ? 'bg-amber-500 text-white font-black shadow-xs'
+                                : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                            }`}
+                          >
+                            Ambos
+                          </button>
+
+                          <button
+                            type="button"
+                            onClick={() => handleDeletePlayer(p.id)}
+                            className="w-6 h-6 rounded flex items-center justify-center text-slate-400 hover:text-red-500 hover:bg-red-50 ml-1 transition cursor-pointer"
+                            title="Eliminar jugador"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
                       </div>
-
-                      <div className="flex items-center gap-1 shrink-0">
-                        <button
-                          type="button"
-                          onClick={() => handleChangePosition(p.id, 'reves')}
-                          title="Juega en la Izquierda (Revés)"
-                          className={`px-2 py-1 rounded text-[10px] font-bold transition cursor-pointer ${
-                            p.position === 'reves'
-                              ? 'bg-blue-600 text-white font-black shadow-xs'
-                              : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-                          }`}
-                        >
-                          Izq
-                        </button>
-
-                        <button
-                          type="button"
-                          onClick={() => handleChangePosition(p.id, 'derecha')}
-                          title="Juega en la Derecha"
-                          className={`px-2 py-1 rounded text-[10px] font-bold transition cursor-pointer ${
-                            p.position === 'derecha'
-                              ? 'bg-slate-800 text-white font-black shadow-xs'
-                              : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-                          }`}
-                        >
-                          Der
-                        </button>
-
-                        <button
-                          type="button"
-                          onClick={() => handleChangePosition(p.id, 'indiferente')}
-                          title="Juega en Ambos Lados (Polivalente)"
-                          className={`px-2 py-1 rounded text-[10px] font-bold transition cursor-pointer ${
-                            p.position === 'indiferente'
-                              ? 'bg-amber-500 text-white font-black shadow-xs'
-                              : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-                          }`}
-                        >
-                          Ambos
-                        </button>
-
-                        <button
-                          type="button"
-                          onClick={() => handleDeletePlayer(p.id)}
-                          className="w-6 h-6 rounded flex items-center justify-center text-slate-400 hover:text-red-500 hover:bg-red-50 ml-1 transition cursor-pointer"
-                          title="Eliminar jugador"
-                        >
-                          <Trash2 className="w-3.5 h-3.5" />
-                        </button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
+                    ))}
+                  </div>
+                )}
               </div>
             </div>
           )}

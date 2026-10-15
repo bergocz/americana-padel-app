@@ -217,26 +217,11 @@ export const DEFAULT_CLUB_COURTS: ClubCourt[] = [
 ];
 
 /**
- * Realistic default players preset for quick testing (16 players = 4 courts).
+/**
+ * Empty default players list by user request (starts empty).
  */
-export const DEFAULT_PRESET_PLAYERS: AmericanaPlayer[] = [
-  { id: 'p1', name: 'Carlos Alcaraz', position: 'reves', pointsWon: 0, matchesPlayed: 0, active: true, restCount: 0 },
-  { id: 'p2', name: 'Ale Galán', position: 'reves', pointsWon: 0, matchesPlayed: 0, active: true, restCount: 0 },
-  { id: 'p3', name: 'Juan Lebrón', position: 'derecha', pointsWon: 0, matchesPlayed: 0, active: true, restCount: 0 },
-  { id: 'p4', name: 'Arturo Coello', position: 'derecha', pointsWon: 0, matchesPlayed: 0, active: true, restCount: 0 },
-  { id: 'p5', name: 'Agustín Tapia', position: 'reves', pointsWon: 0, matchesPlayed: 0, active: true, restCount: 0 },
-  { id: 'p6', name: 'Fede Chingotto', position: 'derecha', pointsWon: 0, matchesPlayed: 0, active: true, restCount: 0 },
-  { id: 'p7', name: 'Paquito Navarro', position: 'reves', pointsWon: 0, matchesPlayed: 0, active: true, restCount: 0 },
-  { id: 'p8', name: 'Martín Di Nenno', position: 'derecha', pointsWon: 0, matchesPlayed: 0, active: true, restCount: 0 },
-  { id: 'p9', name: 'Franco Stupaczuk', position: 'reves', pointsWon: 0, matchesPlayed: 0, active: true, restCount: 0 },
-  { id: 'p10', name: 'Mike Yanguas', position: 'derecha', pointsWon: 0, matchesPlayed: 0, active: true, restCount: 0 },
-  { id: 'p11', name: 'Javi Garrido', position: 'reves', pointsWon: 0, matchesPlayed: 0, active: true, restCount: 0 },
-  { id: 'p12', name: 'Coki Nieto', position: 'reves', pointsWon: 0, matchesPlayed: 0, active: true, restCount: 0 },
-  { id: 'p13', name: 'Jon Sanz', position: 'derecha', pointsWon: 0, matchesPlayed: 0, active: true, restCount: 0 },
-  { id: 'p14', name: 'Momo González', position: 'indiferente', pointsWon: 0, matchesPlayed: 0, active: true, restCount: 0 },
-  { id: 'p15', name: 'Álex Ruiz', position: 'derecha', pointsWon: 0, matchesPlayed: 0, active: true, restCount: 0 },
-  { id: 'p16', name: 'Sanyo Gutiérrez', position: 'derecha', pointsWon: 0, matchesPlayed: 0, active: true, restCount: 0 },
-];
+export const DEFAULT_PRESET_PLAYERS: AmericanaPlayer[] = [];
+
 
 /**
  * Calculates standings based on scoring criteria:

@@ -43,7 +43,7 @@ const STORAGE_KEY = 'club_padel_americana_state_v1';
 export const AmericanaManager: React.FC = () => {
   // State
   const [courts, setCourts] = useState<ClubCourt[]>(DEFAULT_CLUB_COURTS);
-  const [players, setPlayers] = useState<AmericanaPlayer[]>(DEFAULT_PRESET_PLAYERS);
+  const [players, setPlayers] = useState<AmericanaPlayer[]>([]);
   const [rounds, setRounds] = useState<AmericanaRound[]>([]);
   const [currentRoundNumber, setCurrentRoundNumber] = useState(1);
   const [durationMinutes, setDurationMinutes] = useState(12);
@@ -69,7 +69,17 @@ export const AmericanaManager: React.FC = () => {
       if (saved) {
         const parsed = JSON.parse(saved);
         if (parsed.courts) setCourts(parsed.courts);
-        if (parsed.players) setPlayers(parsed.players);
+        if (parsed.players) {
+          // If players contain the old default pro names, clean it so it starts empty as requested
+          const hasOldProNames = parsed.players.some((p: AmericanaPlayer) => 
+            p.name === 'Carlos Alcaraz' || p.name === 'Ale Galán' || p.name === 'Juan Lebrón'
+          );
+          if (hasOldProNames && (!parsed.rounds || parsed.rounds.length === 0)) {
+            setPlayers([]);
+          } else {
+            setPlayers(parsed.players);
+          }
+        }
         if (parsed.rounds) setRounds(parsed.rounds);
         if (parsed.currentRoundNumber) setCurrentRoundNumber(parsed.currentRoundNumber);
         if (parsed.durationMinutes) {
