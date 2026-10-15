@@ -70,11 +70,11 @@ export const AmericanaManager: React.FC = () => {
         const parsed = JSON.parse(saved);
         if (parsed.courts) setCourts(parsed.courts);
         if (parsed.players) {
-          // If players contain the old default pro names, clean it so it starts empty as requested
+          // If players contain any old default pro names, clean it so it starts empty as requested
           const hasOldProNames = parsed.players.some((p: AmericanaPlayer) => 
-            p.name === 'Carlos Alcaraz' || p.name === 'Ale Galán' || p.name === 'Juan Lebrón'
+            p.name === 'Carlos Alcaraz' || p.name === 'Ale Galán' || p.name === 'Juan Lebrón' || p.name === 'Arturo Coello'
           );
-          if (hasOldProNames && (!parsed.rounds || parsed.rounds.length === 0)) {
+          if (hasOldProNames) {
             setPlayers([]);
           } else {
             setPlayers(parsed.players);
@@ -94,6 +94,11 @@ export const AmericanaManager: React.FC = () => {
       console.warn('Could not load Americana state from localStorage', e);
     }
   }, []);
+
+  const handleOpenNewAmericana = () => {
+    setPlayers([]);
+    setIsWizardOpen(true);
+  };
 
   // Save to LocalStorage on state change
   useEffect(() => {
@@ -344,7 +349,7 @@ export const AmericanaManager: React.FC = () => {
         <div className="flex items-center gap-2 flex-wrap">
           <button
             type="button"
-            onClick={() => setIsWizardOpen(true)}
+            onClick={handleOpenNewAmericana}
             className="px-4 py-2 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-black text-xs transition flex items-center gap-1.5 shadow-md shadow-blue-500/20 active:scale-95 cursor-pointer"
           >
             <Sparkles className="w-3.5 h-3.5 fill-current" />
@@ -609,7 +614,7 @@ export const AmericanaManager: React.FC = () => {
           <div className="pt-2 flex flex-col sm:flex-row items-center justify-center gap-3">
             <button
               type="button"
-              onClick={() => setIsWizardOpen(true)}
+              onClick={handleOpenNewAmericana}
               className="w-full sm:w-auto px-8 py-4 rounded-2xl bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-700 hover:from-blue-700 hover:to-indigo-700 text-white font-black text-base shadow-xl shadow-blue-600/30 transition active:scale-95 flex items-center justify-center gap-2.5 cursor-pointer"
             >
               <Sparkles className="w-5 h-5 fill-current" />

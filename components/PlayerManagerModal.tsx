@@ -67,18 +67,9 @@ export const PlayerManagerModal: React.FC<PlayerManagerModalProps> = ({
   };
 
   const handleLoadPreset = (count: number) => {
-    const sampleNames = [
-      'Ale Galán', 'Juan Lebrón', 'Arturo Coello', 'Agustín Tapia',
-      'Fede Chingotto', 'Paquito Navarro', 'Martín Di Nenno', 'Franco Stupaczuk',
-      'Mike Yanguas', 'Javi Garrido', 'Coki Nieto', 'Jon Sanz',
-      'Momo González', 'Álex Ruiz', 'Sanyo Gutiérrez', 'Fernando Belasteguín',
-      'Pablo Cardona', 'Leo Augsburger', 'Tino Libaak', 'Edu Alonso',
-      'Lucas Bergamini', 'Jairo Bautista', 'Chipi Muñoz', 'Gonzalo Rubio'
-    ];
-
     const newPlayers: AmericanaPlayer[] = [];
     for (let i = 0; i < count; i++) {
-      const pName = sampleNames[i] || `Jugador ${i + 1}`;
+      const pName = `Jugador ${i + 1}`;
       let pos: PlayerPosition = 'indiferente';
       if (i % 2 === 0) pos = 'reves';
       else pos = 'derecha';

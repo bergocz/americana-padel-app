@@ -57,6 +57,16 @@ export const NewAmericanaWizard: React.FC<NewAmericanaWizardProps> = ({
     setSelectedCourtsCount(count);
   };
 
+  // Always reset wizard to step 1 and empty player list whenever it opens
+  React.useEffect(() => {
+    if (isOpen) {
+      setCurrentStep(1);
+      setPlayers([]);
+      setNewPlayerName('');
+      setBatchText('');
+    }
+  }, [isOpen]);
+
   const neededPlayers = selectedCourtsCount * 4;
   const neededPairs = selectedCourtsCount * 2; // needed on left and needed on right
 
@@ -103,22 +113,13 @@ export const NewAmericanaWizard: React.FC<NewAmericanaWizardProps> = ({
     return { total, balanceStatus, balanceMessage };
   }, [activePlayers, leftCount, rightCount, bothCount, neededPlayers, neededPairs, selectedCourtsCount]);
 
-  // Preset loader
+  // Preset loader with generic player names (no pro names)
   const loadPresetPlayers = (count: number) => {
-    const defaultNames = [
-      'Ale Galán', 'Juan Lebrón', 'Arturo Coello', 'Agustín Tapia',
-      'Fede Chingotto', 'Paquito Navarro', 'Martín Di Nenno', 'Franco Stupaczuk',
-      'Mike Yanguas', 'Javi Garrido', 'Coki Nieto', 'Jon Sanz',
-      'Momo González', 'Álex Ruiz', 'Sanyo Gutiérrez', 'Fernando Belasteguín',
-      'Pablo Cardona', 'Leo Augsburger', 'Tino Libaak', 'Edu Alonso',
-      'Lucas Bergamini', 'Jairo Bautista', 'Chipi Muñoz', 'Gonzalo Rubio'
-    ];
-
     const generated: AmericanaPlayer[] = [];
     for (let i = 0; i < count; i++) {
       generated.push({
         id: `wiz-p-${Date.now()}-${i}`,
-        name: defaultNames[i] || `Jugador ${i + 1}`,
+        name: `Jugador ${i + 1}`,
         position: i % 2 === 0 ? 'reves' : 'derecha',
         pointsWon: 0,
         matchesPlayed: 0,
@@ -475,7 +476,7 @@ export const NewAmericanaWizard: React.FC<NewAmericanaWizardProps> = ({
                 </div>
               </div>
 
-              {/* Actions row: Quick Presets & Import List Button */}
+              {/* Actions row: Import List Button & Clear list */}
               <div className="flex flex-wrap items-center justify-between gap-2.5">
                 <div className="flex items-center gap-2 flex-wrap">
                   <button
@@ -484,37 +485,20 @@ export const NewAmericanaWizard: React.FC<NewAmericanaWizardProps> = ({
                     className="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-black text-xs transition flex items-center gap-1.5 shadow-sm active:scale-95 cursor-pointer"
                   >
                     <ClipboardPaste className="w-4 h-4" />
-                    <span>📋 Copiar e Importar Lista</span>
+                    <span>📋 Copiar e Importar Lista (WhatsApp)</span>
                   </button>
+                </div>
 
+                {players.length > 0 && (
                   <button
                     type="button"
-                    onClick={() => loadPresetPlayers(neededPlayers)}
-                    className="px-3.5 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 border border-slate-300 text-slate-700 font-bold text-xs transition flex items-center gap-1.5 cursor-pointer shadow-2xs"
+                    onClick={() => setPlayers([])}
+                    className="px-3 py-1.5 rounded-xl bg-red-50 hover:bg-red-100 text-red-600 border border-red-200 text-xs font-bold transition flex items-center gap-1 cursor-pointer"
                   >
-                    <Sparkles className="w-3.5 h-3.5 text-blue-600" />
-                    <span>Cargar {neededPlayers} Pro</span>
+                    <Trash2 className="w-3.5 h-3.5" />
+                    <span>Vaciar Lista</span>
                   </button>
-                </div>
-
-                {/* Quick presets by count */}
-                <div className="flex items-center gap-1 flex-wrap text-xs">
-                  <span className="text-slate-400 font-mono mr-1">Rellenar:</span>
-                  {[8, 12, 16, 20, 24].map(n => (
-                    <button
-                      key={n}
-                      type="button"
-                      onClick={() => loadPresetPlayers(n)}
-                      className={`px-2 py-1 rounded-lg text-xs font-bold border transition cursor-pointer ${
-                        n === neededPlayers
-                          ? 'bg-blue-100 border-blue-300 text-blue-800'
-                          : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-100'
-                      }`}
-                    >
-                      {n}
-                    </button>
-                  ))}
-                </div>
+                )}
               </div>
 
               {/* Add Single Player Input */}
